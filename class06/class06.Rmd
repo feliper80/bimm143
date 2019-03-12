@@ -1,0 +1,163 @@
+---
+title: "class06"
+author: "Felipe Rangel"
+date: "1/24/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Section 1: Reading files again :-)
+
+
+Here we are trying to use the **read.table()** function and friends to read some example flat files. 
+First let's try adding a simple plot
+
+```{r}
+plot(1:10)
+```
+
+Back to file reading...
+```{r}
+read.table("https://bioboot.github.io/bimm143_W19/class-material/test1.txt", header= TRUE, sep=",")
+```
+
+for this commmon CSV format we can use **read.csv**
+
+```{r}
+file1 <- "https://bioboot.github.io/bimm143_W19/class-material/test1.txt"
+data1 <- read.csv(file1)
+data1
+```
+for this common file, i am trying to figure out how to read this file using the different functions we've learned so far.
+
+```{r}
+file2 <-"https://bioboot.github.io/bimm143_W19/class-material/test2.txt"
+data2 <- read.csv2(file2, header = TRUE, sep = "$")
+data2
+```
+
+for this next common file, I need to repeat the same steps as in for the command above...
+
+```{r}
+file3 <- "https://bioboot.github.io/bimm143_W19/class-material/test3.txt"
+data3 <- read.table(file3)
+data3
+```
+
+## Section 2. R funcitons
+
+My first function
+
+```{r}
+add <- function(x, y=1) {
+ # Sum the input x and y
+ x + y
+}
+```
+
+let's try using the function
+```{r}
+add(1)
+
+```
+
+```{r}
+add(1,100)
+```
+
+```{r}
+add( c(1, 2, 3) )
+```
+```{r}
+add( c(1, 2, 3), 4 )
+```
+
+```{r}
+#add(1, 2, 2)
+```
+```{r}
+#add(x=1, y="b")
+```
+
+
+my 2nd function
+
+```{r}
+rescale <- function(x) {
+ rng <-range(x)
+ (x - rng[1]) / (rng[2] - rng[1]) 
+}
+```
+
+Test on a small sample, where we know what the answ should be
+```{r}
+rescale(1:10)
+```
+
+```{r}
+# How would you get your function to work here…
+rescale( c(1,2,NA,3,10) )
+```
+
+```{r}
+# What should your function do here?
+# rescale( c(1,10,"string") )
+```
+
+```{r}
+rescale2 <- function(x) {
+ rng <-range(x, na.rm=TRUE)
+ (x - rng[1]) / (rng[2] - rng[1]) 
+}
+x <- c(1,2,NA,3,10)
+rng <- range(x)
+rng
+```
+```{r}
+rescale2( c(1,2,NA,3,10))
+```
+
+```{r}
+rescale3 <- function(x, na.rm=TRUE, plot=FALSE) {
+ if(na.rm) {
+ rng <-range(x, na.rm=TRUE)
+ } else {
+ rng <-range(x)
+ }
+ print("Hello")
+ answer <- (x - rng[1]) / (rng[2] - rng[1])
+ 
+ print("is it me you are looking for?")
+ 
+ if(plot) {
+ plot(answer, typ="b", lwd=4)
+ }
+ print("I can see it in ...")
+ return(answer)
+}
+```
+
+
+```{r}
+rescale3 <- function(x, na.rm=TRUE, plot=FALSE) {
+ if(na.rm) {
+ rng <-range(x, na.rm=TRUE)
+ } else {
+ rng <-range(x)
+ }
+ print("Hello")
+ answer <- (x - rng[1]) / (rng[2] - rng[1])
+ return(answer)
+ print("is it me you are looking for?")
+ if(plot) {
+ plot(answer, typ="b", lwd=4)
+ }
+ print("I can see it in ...")
+}
+
+```
+
+
