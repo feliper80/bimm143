@@ -1,0 +1,194 @@
+---
+title: "class 15"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#import coldata and metadata
+```{r}
+counts <- read.csv("airway_scaledcounts.csv", stringsAsFactors = FALSE)
+metadata <-  read.csv("airway_metadata.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+dim(counts)
+head(counts)
+```
+
+
+```{r}
+head(metadata)
+```
+
+
+```{r}
+control <- metadata[metadata[,"dex"]=="control",]
+control.mean <- rowSums( counts[ ,control$id] )/4 
+names(control.mean) <- counts$ensgene
+```
+
+```{r}
+#meancounts <- data.frame(control.mean, treated.mean)
+```
+
+First task is to find which columns in **counts** correspond to the control conditions (i.e. no drug!) the we need to calculate the mena count value for each gene. 
+
+```{r}
+control.inds <- metadata$dex == "control" 
+control.ids <- metadata$id[control.inds]
+
+head( counts[,control.ids] )
+
+```
+calculated the average COUNTS value for all genes
+```{r}
+rowSums(counts[,control.ids]) / ncol(counts[,control.ids])
+```
+
+
+Now do the same thing but for the experimental groups//drug. Determine which columns corresspond to drug treated groups and then calculate the average value of each gene. (** i.e. drug treated groups**)
+
+```{r}
+treated.inds <- metadata$dex == "treated"
+treated.ids <- metadata$id[treated.inds]
+
+head( counts[, treated.ids] )
+```
+calculate the avg. of COUNT value for drug treated genes
+```{r}
+ treated.mean <- rowSums(counts[,treated.ids]) /ncol(counts[,treated.ids])
+```
+
+combine the mean count for all genes from the control and treated
+
+```{r}
+meancounts <- data.frame(control.mean, treated.mean)
+meancounts
+```
+
+```{r}
+colSums(meancounts)
+```
+
+Now we can plot the drug treated vs. non-drug control count values
+```{r}
+plot(meancounts$control.mean,meancounts$treated.mean)
+```
+take the log
+
+```{r}
+plot(log2(meancounts$control.mean),log2(meancounts$treated.mean))
+```
+
+We can find candidate differentially expressed genes by looking for genes with a large change between control and dex-treated samples. We usually look at the log2 of the fold change, because this has better mathematical properties.
+
+Here we calculate log2foldchange, add it to our meancounts data.frame and inspect the results either with the head() or the View() function for example.
+
+```{r}
+meancounts$log2fc <- log2(meancounts[,"treated.mean"]/meancounts[,"control.mean"])
+head(meancounts)
+```
+the which** functoin shows us which coulumn, variable, etc. is true/false to the statement.
+```{r}
+ty <- c(1,2,4,56,7,0,8,0)
+ty ==0
+which(ty==0)
+```
+
+
+```{r}
+zero.vals <- which(meancounts[,1:2]==0, arr.ind=TRUE)
+
+to.rm <- unique(zero.vals[,1])
+mycounts <- meancounts[-to.rm,]
+head(mycounts)
+```
+
+```{r}
+ty <- meancounts[1:6,]
+ty[,1:2]
+unique( which(ty[,1:2] ==0, arr.ind=TRUE)[,1])
+```
+
+```{r}
+up.ind <- mycounts$log2fc > 2
+down.ind <- mycounts$log2fc < (-2)
+up.ind
+```
+
+
+```{r}
+sum(up.ind)
+```
+
+```{r}
+sum(down.ind)
+```
+
+there are 'sum(up.ind)' up regulated genes and 'sum(down.ind)' down regulated genes. 
+
+
+all of these gene are upregulated...but nOW what do we do? return to biology speak and determine what each gene does and how it connects to asthma. 
+```{r}
+head(mycounts[up.ind,])
+```
+
+
+use the merge() function to add annotation data from ensemlbe
+
+
+```{r}
+anno <- read.csv("data/annotables_grch38.csv")
+head(anno)
+```
+
+
+```{r}
+mycounts.annotated <- merge(x=mycounts, y=anno, by.x="row.names", by.y = "ensgene")
+head(mycounts.annotated)
+```
+
+
+
+#DEseq2 analysis
+
+```{r}
+library(DESeq2)
+
+```
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData=counts, 
+                              colData=metadata, 
+                              design=~dex, 
+                              tidy=TRUE)
+dds
+```
+
+
+```{r}
+dds <- DESeq(dds)
+```
+
+```{r}
+res <- results(dds)
+head(res)
+```
+
+```{r}
+summary(res)
+```
+
+```{r}
+plot(res$log2FoldChange, -log(res$padj))
+```
+
+
+
+
+
+
