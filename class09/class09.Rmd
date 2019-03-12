@@ -1,0 +1,36 @@
+#We just imported the mast cell data
+```{r}
+url <- "https://bioboot.github.io/bimm143_W18/class-material/WisconsinCancer.csv"
+wisc.df <- read.csv(url)
+```
+#We need to convert columns 3-32 into a matrix since we will not really use them 
+```{r}
+wisc.data <- as.matrix(wisc.df, nrow=1136 , ncol= 3, byrow= FALSE,
+dimnames= list(c("ID", "diagnosis", "radius_mean")))
+
+```
+#we will now set the names for the rows.
+```{r}
+row.names(wisc.data) <- wisc.df$id
+```
+#we are setting up a new vector to split/determine which samples are malignant and bening
+```{r}
+diagnosis <- as.numeric( wisc.df[,2])
+diagnosis
+sum(diagnosis, 1)
+```
+#right now, i want to get to know my data a little better. 
+```{r}
+dim(wisc.df)
+length(wisc.df)
+sum(grep("B", wisc.df$diagnosis))
+```
+# we will now conduct PCA testing... but first, we need to determine if the data should be scaled based on the mean and std.dev of each column
+```{r}
+apply(wisc.data,2,sd)
+```
+```{r}
+colMeans(wisc.data[,])
+
+```
+
