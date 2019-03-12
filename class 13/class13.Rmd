@@ -1,0 +1,30 @@
+---
+title: "Class 13"
+output: github_document
+---
+
+
+```{r}
+library(bio3d)
+res <- read.pdb("all.pdbqt", multi=TRUE)
+write.pdb(res, "results.pdb")
+```
+
+```{r}
+# res <- read.pdb("all.pdbqt", multi=TRUE)
+ori <- read.pdb("ligand.pdbqt")
+rmsd(ori, res)
+```
+
+#normal mode analysis
+```{r}
+pdb <- read.pdb("1HEL")
+
+m <- nma(pdb)
+plot(m)
+```
+
+```{r}
+mktrj(m, mode=7, file="nma_7.pdb")
+```
+
