@@ -1,0 +1,133 @@
+---
+title: "Class 11: Structural Bioinformatics"
+output: github_document
+---
+
+##section 1. The PDB
+# determine the percentage of structures solved by X-Ray and Electron Microscopy. From
+the website what proportion of structures are protein? 
+```{r}
+stats <- read.csv("Data Export Summary.csv")
+head(stats)
+```
+
+```{r}
+sum(stats$Total)
+```
+```{r}
+percent.by.method <- stats$Total/sum(stats$Total) * 100
+names(percent.by.method) <- rownames(stats)
+percent.by.method
+```
+
+```{r}
+sum(stats$Proteins)/ sum(stats$Total) * 100
+```
+
+Q2: Type HIV in the PDB website search box on the home page and determine how many
+HIV-1 protease structures are in the current PDB?
+
+```{r}
+library(bio3d)
+```
+
+now we can use the fcs from the bio3d package
+
+```{r}
+pdb <- read.pdb("1hsg")
+print(pdb)
+```
+
+```{r}
+attributes(pdb)
+```
+```{r}
+head(pdb$atom)
+```
+
+```{r}
+# Print a subset of $atom data for the first two atoms
+pdb$atom[1:2, c("eleno", "elety", "x","y","z")]
+```
+
+```{r}
+# Note that individual $atom records can also be accessed like this
+pdb$atom$elety[1:2]
+```
+
+```{r}
+# Which allows us to do the following
+plot.bio3d(pdb$atom$b[pdb$calpha], sse=pdb, typ="l", ylab=“B-factor”)
+```
+
+```{r}
+atom.select(pdb, )
+pro
+```
+
+
+```{r}
+# Select all C-alpha atoms (return their indices)
+ca.inds <- atom.select(pdb, "calpha")
+ca.inds
+```
+
+
+```{r}
+# Print details of the first few selected atoms
+head( pdb$atom[ca.inds$atom, ] )
+```
+
+```{r}
+# And selected xyz coordinates
+head( pdb$xyz[, ca.inds$xyz] )
+```
+
+
+
+```{r}
+# Select chain A
+a.inds <- atom.select(pdb, chain="A")
+```
+
+```{r}
+# Select C-alphas of chain A
+ca.inds <- atom.select(pdb, "calpha", chain="A")
+```
+
+```{r}
+# We can combine multiple selection criteria to return their
+#intersection
+cab.inds <- atom.select(pdb, elety=c("CA","CB"), chain="A",
+resno=10:20)
+```
+
+#we want to select out the protein and deug only parts o
+```{r}
+prot.inds <- atom.select(pdb, "protein")
+prot.inds
+```
+
+```{r}
+prot.pdb <- trim.pdb(pdb, prot.inds)
+write.pdb(prot.pdb, file="protein.pdb")
+```
+
+#let's do the same thing for our drug
+
+```{r}
+lig.inds <- atom.select(pdb, "ligand")
+lig.pdb <- trim.pdb(pdb, lig.inds)
+write.pdb(lig.pdb, file="ligand.pdb")
+```
+
+```{r}
+install.packages("devtools")
+```
+
+
+```{r}
+library(bio3d)
+View(pdb, "overview")
+```
+
